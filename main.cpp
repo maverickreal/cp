@@ -10,7 +10,7 @@
 #include "queue"
 #include "functional"
 #include "numeric"
-//clear ; g++-11 main.cpp -o main ; ./main
+//#include "leetcode.h"
 
 using namespace std;
 
@@ -33,10 +33,26 @@ public:
 };
 
 typedef long long ll;
+typedef long double ld;
+typedef vector<ll> vi;
 #define endl '\n'
 const ll mod = 1e9;
 
 vector<bool>primes;
+
+void setPrimes(ll n);
+
+vector<vector<ll>>getChildren(const vector<ll>& v);
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(0); cout.tie(0);
+    ll t = 1;
+    cin >> t;
+    while (t--) {
+    }
+    return 0;
+}
 
 void setPrimes(ll n) {
     vector<bool>v(n + 1, true);
@@ -59,34 +75,4 @@ vector<vector<ll>>getChildren(const vector<ll>& v) {
         res[par - 1].push_back(node);
     }
     return res;
-}
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(0); cout.tie(0);
-    ll t = 1;
-    //cin >> t;
-    while (t--) {
-        ll n, l, res = 0;
-        cin >> n >> l;
-        priority_queue<ll, vector<ll>, greater<ll>>pq;
-        for (ll i = 0;i < n;++i) {
-            ll j;
-            cin >> j;
-            l -= j;
-            pq.push(j);
-        }
-        if (l)
-            pq.push(l);
-        while (pq.size() > 1) {
-            ll x = pq.top();
-            pq.pop();
-            ll y = pq.top();
-            pq.pop();
-            res += x + y;
-            pq.push(x + y);
-        }
-        cout << res << endl;
-    }
-    return 0;
 }
