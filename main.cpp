@@ -10,7 +10,7 @@
 #include "queue"
 #include "functional"
 #include "numeric"
-//#include "leetcode.h"
+#include "segmentTree.h"
 
 using namespace std;
 
@@ -36,7 +36,7 @@ typedef long long ll;
 typedef long double ld;
 typedef vector<ll> vi;
 #define endl '\n'
-const ll mod = 1e9;
+static const ll mod = 1e9;
 
 vector<bool>primes;
 
@@ -48,8 +48,25 @@ int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(0); cout.tie(0);
     ll t = 1;
-    cin >> t;
+    //cin >> t;
     while (t--) {
+        ll sz;
+        cin >> sz;
+        vector<ll>v(sz);
+        for (ll& i : v)
+            cin >> i;
+        st tree(v);
+        ll q;
+        cin >> q;
+        while (q--) {
+            ll a, b;
+            char ch;
+            cin >> a >> b >> ch;
+            if (ch == 'u')
+                tree.updateValue(a, b);
+            else if (ch == 'g')
+                cout << tree.getSum(a, b) << endl;
+        }
     }
     return 0;
 }
