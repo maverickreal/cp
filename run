@@ -1,3 +1,0 @@
-clear ;
-g++-11 main.cpp -o main ;
-./main
