@@ -32,6 +32,33 @@ bool isPrime(ll n);
 
 vi(vi(ll)) getChildren(vi(ll)& v);
 
+ll modExp(ll x, ll y, ll m);
+
+class Solution {
+typedef long long ll;
+typedef pair<ll, ll> pi;
+#define vi(x) vector<x>
+#define pb push_back
+const ll mod = 1e9 + 7;
+const char nl = '\n';
+public:
+    int numberOfPaths(int n, vector<vector<int>>&e) {
+        vi(unordered_set<ll>)g(n+1);
+        for(auto edge:e){
+            g[min(edge[0], edge[1])].insert(max(edge[0], edge[1]));
+        }
+        ll ans=0;
+        for(auto edge:e){
+            for( ll nd:g[edge[0]]){
+                if(g[edge[1]].find(nd)!=g[edge[1]].end()){
+                    ++ans;
+                }
+            }
+        }
+        return ans;
+    }
+};
+
 int main() {
     ios_base::sync_with_stdio(0);
     cin.tie(0); cout.tie(0);
@@ -41,6 +68,22 @@ int main() {
     while (tc--) {
     }
     return 0;
+}
+
+ll modExp(ll x, ll y, ll m){
+    ll res = 1;
+    x%=m;
+    if (!x){
+        return 0;  
+    }
+    while (y > 0){
+        if (y & 1){
+            res = (res*x) % m;
+        }
+        y>>=1;
+        x = (x*x) % m;
+    }
+    return res;
 }
 
 void setPrimes() {
@@ -93,8 +136,8 @@ vi(vi(ll)) getChildren(vi(ll)& v) {
 class dsu{
 public:
     vi(ll)par, size;
-    dsu(n){
-        par.assign(n, 0), size(n, 1);
+    dsu(ll n){
+        par.assign(n, 0), size.assign(n, 1);
         for(ll i=0;i<n;++i){
             par[i]=i;
         }
@@ -103,19 +146,84 @@ public:
         if(par[n]==n){
             return n;
         }
-        ll p=find(par[n]);
-        par[n]=p;
-        return p;
+        return (par[n]=find(par[n]));
     }
-    void union(ll a, ll b){
+    void merge(ll a, ll b){
         a=find(a), b=find(b);
         if(a==b){
             return;
         }
         if(size[a]<size[b]){
-            a^=b, b^=a, a^=b;
+            a+=b, b=a-b, a-=b;
         }
         par[b]=a;
         size[a]+=size[b];
+    }
+};
+
+class dijkstra{ // matrix form is similar
+public:
+    vi(ll)d, p;
+    vi(bool)vis;
+    ll s;
+    dijikstra(ll S){
+        s=S;
+    }
+    dijkstraDense(const vi(vi(pi))&g) { // for max edges; O(v^2)
+        ll n = g.size();
+        d.assign(n, LLONG_MAX), p.assign(n, -1), vis.assign(n, false);
+        d[s] = 0;
+        for (ll i = 0; i < n; i++) {
+            ll v = -1;
+            for (ll j = 0; j < n; j++) {
+                if (!vis[j] && (v == -1 || d[j] < d[v])){
+                    v = j;
+                }
+            }
+            if (d[v] == LLONG_MAX){
+                break;
+            }
+            vis[v] = true;
+            for (auto edge : g[v]) {
+                ll to = edge.first, w = edge.second;
+                if (d[v] + w < d[to]) {
+                    d[to] = d[v] + w;
+                    p[to] = v;
+                }
+            }
+        }
+    }
+    dijkstraSparse(const vi(vi(pi))&g) { // for min edges; O(elogn)
+        ll n = g.size();
+        d.assign(n, LLONG_MAX), p.assign(n, -1);
+        d[s] = 0;
+        priority_queue<pi, vector<pi>, greater<pi>> q;
+        q.push({0, s});
+        while (!q.empty()) {
+            ll v = q.top().second, dist = q.top().first;
+            q.pop();
+            if (dist != d[v]){
+                continue;
+            }
+            for (auto edge : g[v]) {
+                ll to = edge.first, w = edge.second;
+                if (d[v] + w < d[to]) {
+                    d[to] = d[v] + w;
+                    p[to] = v;
+                    q.push({d[to], to});
+                }
+            }
+        }
+    }
+    vi(ll) getPath(ll t) {
+        vi(ll)path;
+        for(ll v = t;; v = p[v]){
+            path.pb(v);
+            if(v==s){
+                break;
+            }
+        }
+        reverse(begin(path), end(path));
+        return path;
     }
 };
