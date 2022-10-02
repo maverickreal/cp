@@ -24,25 +24,99 @@ typedef pair<ll, ll> pi;
 const ll mod = 1e9 + 7;
 const char nl = '\n';
 
-bitset<0> primes(0);
+bitset<0> primes(0); // <x> size initialised with bits of (y) right to left
 
-void setPrimes();
+void setPrimes(); //  first adjust the bitset primes accordingly
 
 bool isPrime(ll n);
+
+unordered_map<ll, ll> getPrimeFactors(ll n); // for queries, use setPrimes and isPrime efficiently
+
+unordered_set<ll> getFactors(ll n);
 
 vi(vi(ll)) getChildren(vi(ll)& v);
 
 ll modExp(ll x, ll y, ll m);
+
+ll stringHash(const string&s);
 
 int main() {
     ios_base::sync_with_stdio(0);
     cin.tie(0); cout.tie(0);
     cout << fixed << setprecision(10);
     ll tc = 1;
-    cin >> tc;
-    while (tc--) {
+    //cin >> tc;
+    while(tc--){
     }
     return 0;
+}
+
+void setPrimes() {
+    ll n = primes.size();
+    primes[0] = primes[1] = 0;
+    for (ll i = 2;i * i <= n;i++) {
+        if (primes[i]) {
+            for (ll j = i;j * i <= n;++j){
+                primes[j * i] = 0;
+            }
+        }
+    }
+}
+
+bool isPrime(ll n) {
+    if (n<2) return false;
+    if (n == 2) return true;
+    if (!(n&1)) return false;
+    for (ll i = 3; i * i <= n; i += 2){
+        if (n % i == 0) return false;
+    }
+    return true;
+}
+
+unordered_map<ll,ll> getPrimeFactors(ll n){
+    unordered_map<ll,ll>ump;
+    if(n<2){
+        return ump;
+    }
+    while (!(n&1)){
+        ++ump[2];
+        n>>=1;
+    }
+    for (ll i = 3; i*i<=n; i+=2){
+        while (n % i == 0){
+            ++ump[i];
+            n/=i;
+        }
+    }
+    if (n > 2){
+        ++ump[n];
+    }
+    return ump;
+}
+
+unordered_set<ll> getFactors(ll n) {
+    if (n < 0)
+        return {};
+    if (n == 0)
+        return { 0 };
+    unordered_set<ll> res={1, n};
+    for (ll i = 2;i * i <= n;i++) {
+        if (n % i == 0) {
+            res.insert(i), res.insert(n / i);
+        }
+    }
+    return res;
+}
+
+vi(vi(ll)) getChildren(vi(ll)& v) {
+    ll n = v.size();
+    vi(vi(ll)) res(n);
+    for (ll i = 0;i < n;++i) {
+        ll node = i + 1, par = v[i];
+        if (par == -1)continue;
+        res[par - 1].push_back(node);
+    }
+    return res;
 }
 
 ll modExp(ll x, ll y, ll m){
@@ -61,51 +135,13 @@ ll modExp(ll x, ll y, ll m){
     return res;
 }
 
-void setPrimes() {
-    ll n = primes.size();
-    primes[0] = primes[1] = 0;
-    for (ll i = 2;i * i <= n;i++) {
-        if (primes[i]) {
-            for (ll j = i;j * i <= n;++j)
-                primes[j * i] = 0;
-        }
+ll stringHash(const string& s) { // alternatively construct and use std::hash<>
+    ll p = 31, hashVal = 0, pPow = 1;
+    for(char ch : s) {
+        hashVal = (hashVal + (ch - 'a' + 1) * pPow) % mod;
+        pPow = (pPow * p) % mod;
     }
-}
-
-bool isPrime(ll n) {
-    if (n == 1) return false;
-    if (n == 2) return true;
-    if (n % 2 == 0) return false;
-    for (ll i = 3; i * i <= n; i += 2)
-        if (n % i == 0) return false;
-    return true;
-}
-
-vi(ll) getFactors(ll& n) {
-    if (n < 0)
-        return {};
-    if (n == 0)
-        return { 0 };
-    vi(ll) res { 1 };
-    for (ll i = 2;i * i <= n;i++) {
-        if (n % i == 0) {
-            res.push_back(i);
-            if ((n / i) != i)
-                res.push_back(n / i);
-        }
-    }
-    return res;
-}
-
-vi(vi(ll)) getChildren(vi(ll)& v) {
-    ll n = v.size();
-    vi(vi(ll)) res(n);
-    for (ll i = 0;i < n;++i) {
-        ll node = i + 1, par = v[i];
-        if (par == -1)continue;
-        res[par - 1].push_back(node);
-    }
-    return res;
+    return hashVal;
 }
 
 class dsu{
@@ -141,10 +177,10 @@ public:
     vi(ll)d, p;
     vi(bool)vis;
     ll s;
-    dijikstra(ll S){
+    dijkstra(ll S){
         s=S;
     }
-    dijkstraDense(const vi(vi(pi))&g) { // for max edges; O(v^2)
+    void dijkstraDense(const vi(vi(pi))&g) { // for max edges; O(v^2)
         ll n = g.size();
         d.assign(n, LLONG_MAX), p.assign(n, -1), vis.assign(n, false);
         d[s] = 0;
@@ -168,7 +204,7 @@ public:
             }
         }
     }
-    dijkstraSparse(const vi(vi(pi))&g) { // for min edges; O(elogn)
+    void dijkstraSparse(const vi(vi(pi))&g) { // for min edges; O(elogn)
         ll n = g.size();
         d.assign(n, LLONG_MAX), p.assign(n, -1);
         d[s] = 0;
@@ -190,8 +226,7 @@ public:
             }
         }
     }
-    vi(ll) getPath(ll t) {
-        vi(ll)path;
+    void getPath(ll t, vi(ll)&path) {
         for(ll v = t;; v = p[v]){
             path.pb(v);
             if(v==s){
@@ -199,6 +234,5 @@ public:
             }
         }
         reverse(begin(path), end(path));
-        return path;
     }
 };
