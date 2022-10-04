@@ -26,7 +26,7 @@ const char nl = '\n';
 
 bitset<0> primes(0); // <x> size initialised with bits of (y) right to left
 
-void setPrimes(); //  first adjust the bitset primes accordingly
+void setPrimes(); //  first gust the bitset primes accordingly
 
 bool isPrime(ll n);
 
@@ -39,6 +39,12 @@ vi(vi(ll)) getChildren(vi(ll)& v);
 ll modExp(ll x, ll y, ll m);
 
 ll stringHash(const string&s);
+
+void topologicalSort(const vi(vi(ll))&g, vi(ll)&v);
+
+void floydWarshall(vi(vi(ll))&g);
+
+bool spfa(const vi(vi(pi))&g, vi(ll)&d, ll s);
 
 int main() {
     ios_base::sync_with_stdio(0);
@@ -142,6 +148,78 @@ ll stringHash(const string& s) { // alternatively construct and use std::hash<>
         pPow = (pPow * p) % mod;
     }
     return hashVal;
+}
+
+void topologicalSort(const vi(vi(ll))&g, vi(ll)&v){ // matrix form similar
+    ll n=g.size();
+    vi(ll)ind(n);
+    for(auto it:g){
+        for(auto nd:it){
+            ++ind[nd];
+        }
+    }
+    list<ll>l;
+    for(ll i=0;i<n;++i){
+        if(!ind[i]){
+            l.pb(i);
+        }
+    }
+    while(!l.empty()){
+        ll nd=l.front();
+        l.pop_front();
+        v.pb(nd);
+        for(ll child:g[nd]){
+            if(--ind[child]==0){
+                l.pb(child);
+            }
+        }
+    }
+    if(v.size()!=n){ // graph is cyclic
+        v.clear();
+    }
+}
+
+void floydWarshall(vi(vi(ll))&g){ // gust for list form
+    ll n=g.size();
+    for(ll k=0;k<n;++k){
+        for(ll i=0;i<n;++i){
+            for(ll j=0;j<n;++j){
+                if(g[i][k]<LLNG_MAX && g[k][j]<LLONG_MAX){
+                    g[i][j]=min(g[i][j], g[i][k]+g[k][j]);
+                }
+            }
+        }
+    }
+}
+
+bool spfa(const vi(vi(pi))&g, vi(ll)&d, ll s) { // optimized bellman ford
+    ll n = g.size();
+    d.assign(n, LLONG_MAX);
+    vi(ll)cnt(n, 0);
+    vi(bool)vis(n);
+    list<ll>q={s};
+    d[s] = 0;
+    vis[s] = true;
+    while (!q.empty()) {
+        ll v = q.front();
+        q.pop_front();
+        vis[v] = false;
+        for (auto edge : g[v]) {
+            ll u = edge.first, w = edge.second;
+            if (d[v] + w < d[u]]) {
+                d[u] = d[v] + w;
+                if (!vis[u]) {
+                    q.push_back(u);
+                    vis[u] = true;
+                    cnt[u]++;
+                    if (cnt[to] > n){
+                        return false; // negative cycle
+                    }
+                }
+            }
+        }
+    }
+    return true;
 }
 
 class dsu{
