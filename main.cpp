@@ -24,7 +24,7 @@ typedef pair<ll, ll> pi;
 const ll mod = 1e9 + 7;
 const char nl = '\n';
 
-bitset<0> primes(0); // <x> size initialised with bits of (y) right to left
+bitset<0> primes(0); // <x> size initialized with bits of (y) right to left
 
 void setPrimes(); //  first gust the bitset primes accordingly
 
@@ -184,7 +184,7 @@ void floydWarshall(vi(vi(ll))&g){ // gust for list form
     for(ll k=0;k<n;++k){
         for(ll i=0;i<n;++i){
             for(ll j=0;j<n;++j){
-                if(g[i][k]<LLNG_MAX && g[k][j]<LLONG_MAX){
+                if(g[i][k]<LLONG_MAX && g[k][j]<LLONG_MAX){
                     g[i][j]=min(g[i][j], g[i][k]+g[k][j]);
                 }
             }
@@ -206,13 +206,12 @@ bool spfa(const vi(vi(pi))&g, vi(ll)&d, ll s) { // optimized bellman ford
         vis[v] = false;
         for (auto edge : g[v]) {
             ll u = edge.first, w = edge.second;
-            if (d[v] + w < d[u]]) {
+            if (d[v] + w < d[u]) {
                 d[u] = d[v] + w;
                 if (!vis[u]) {
                     q.push_back(u);
                     vis[u] = true;
-                    cnt[u]++;
-                    if (cnt[to] > n){
+                    if (++cnt[u] > n){
                         return false; // negative cycle
                     }
                 }
@@ -269,7 +268,7 @@ public:
                     v = j;
                 }
             }
-            if (d[v] == LLONG_MAX){
+            if (v==-1 || d[v] == LLONG_MAX){
                 break;
             }
             vis[v] = true;
@@ -304,13 +303,55 @@ public:
             }
         }
     }
-    void getPath(ll t, vi(ll)&path) {
-        for(ll v = t;; v = p[v]){
-            path.pb(v);
-            if(v==s){
-                break;
+    //  restore path using array p
+};
+
+ll primsAcc(const vi(ll)&val, const vi(bool)&inc){ // find and return the min valued vertex
+    ll mn = LLONG_MAX, v=-1;
+    for(ll i = 0; i < val.size(); ++i){
+        if(!inc[i] && val[i] < mn){
+            v = i, mn = val[i];
+        }
+    }
+    return v;
+}
+
+bool primsMst(const vi(vi(ll))&g){ // find MST in a dense graph
+    ll n=g.size();
+    vi(ll)par(n, 0), val(n, LLONG_MAX);
+    vi(bool)inc(n, false);
+    par[0] = -1, val[0] = 0;
+    for(ll i = 0; i < n-1; ++i){
+        ll u = primsAcc(val, inc);
+        if(u==-1){
+            return false;
+        }
+        inc[u] = true;
+        for(ll v = 0; v < n; ++v){
+            if(g[u][v] && !inc[v] && g[u][v] < val[v]){
+                val[v] = g[u][v], par[v] = u;
             }
         }
-        reverse(begin(path), end(path));
     }
-};
+    // figure out the MST using par array
+    return true;
+}
+
+ll kruskal(const vi(vi(pi))&g){ // adjust for matrix form, or other requirements
+    vi(vi(ll))e;
+    ll n=g.size(), ans=0;
+    for(ll nd=0; nd<n; ++nd){
+        for(const pi&child:g[nd]){
+            e.pb({nd, child.first, child.second});
+        }
+    }
+    sort(begin(e), end(e), [](const vi(ll)&a, const vi(ll)&b){return (a[2]<b[2]);});
+    dsu d(n);
+    for(ll i=0;i<e.size();i++){
+        if(d.find(e[i][0])!=d.find(e[i][1])){
+            d.merge(e[i][0],e[i][1]);
+            ans+=e[i][2];
+        }
+    }
+    return ans;
+}
