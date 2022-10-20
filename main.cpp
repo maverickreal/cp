@@ -26,7 +26,7 @@ const char nl = '\n';
 
 bitset<0> primes(0); // <x> size initialized with bits of (y) right to left
 
-void setPrimes(); //  first gust the bitset primes accordingly
+void setPrimes(); //  first adjust the bitset primes accordingly
 
 bool isPrime(ll n);
 
@@ -45,6 +45,10 @@ void topologicalSort(const vi(vi(ll))&g, vi(ll)&v);
 void floydWarshall(vi(vi(ll))&g);
 
 bool spfa(const vi(vi(pi))&g, vi(ll)&d, ll s);
+
+bool primsMst(const vi(vi(ll))&g);
+
+ll kruskal(const vi(vi(pi))&g);
 
 int main() {
     ios_base::sync_with_stdio(0);
@@ -179,7 +183,7 @@ void topologicalSort(const vi(vi(ll))&g, vi(ll)&v){ // matrix form similar
     }
 }
 
-void floydWarshall(vi(vi(ll))&g){ // gust for list form
+void floydWarshall(vi(vi(ll))&g){ // adjust for list form
     ll n=g.size();
     for(ll k=0;k<n;++k){
         for(ll i=0;i<n;++i){
@@ -304,6 +308,75 @@ public:
         }
     }
     //  restore path using array p
+};
+
+class tarjan{ // find articulation points and bridges in O(e+v) time
+public:
+    ll n, time;
+    vi(bool)vis;
+    vi(ll)disc, low, pts;
+    vi(vi(ll))bridges;
+    void dfsPoints(const vi(vi(ll))&g, ll nd, ll par) {
+        vis[nd] = 1;
+        disc[nd] = low[nd] = time++;
+        ll children=0;
+        for (ll child : g[nd]) {
+            if (child == par){
+                continue;
+            }
+            if (vis[child]) {
+                low[nd] = min(low[nd], disc[child]);
+            }
+            else {
+                dfsPoints(g, child, nd);
+                low[nd] = min(low[nd], low[child]);
+                if (low[child] >= disc[nd] && par!=-1){
+                    pts.pb(nd);
+                }
+                ++children;
+            }
+        }
+        if(par == -1 && children > 1){
+            pts.pb(nd);
+        }
+    }
+    void tarjanPoints(const vi(vi(ll))&g){
+        time = 0, n=g.size();
+        vis.assign(n, 0), disc.assign(n, -1), low.assign(n, -1);
+        for (ll i = 0; i < n; ++i) {
+            if (!vis[i]){
+                dfsPoints(g, i, -1);
+            }
+        }
+    }
+    void dfsBridges(const vi(vi(ll))&g, ll nd, ll par) {
+        vis[nd] = 1;
+        disc[nd] = low[nd] = time++;
+        for (ll child : g[nd]) {
+            if (child == par){
+                continue;
+            }
+            if (vis[child]) {
+                low[nd] = min(low[nd], disc[child]);
+            }
+            else {
+                dfsBridges(g, child, nd);
+                low[nd] = min(low[nd], low[child]);
+                if (low[child] > disc[nd]){
+                    bridges.pb({nd, child});
+                }
+            }
+        }
+    }
+    void tarjanBridges(const vi(vi(ll))&g) {
+        time = 0, n=g.size();
+        vis.assign(n, 0), disc.assign(n, -1), low.assign(n, -1);
+        for (ll i = 0; i < n; ++i) {
+            if (!vis[i]){
+                dfsBridges(g, i, -1);
+            }
+        }
+    }
 };
 
 ll primsAcc(const vi(ll)&val, const vi(bool)&inc){ // find and return the min valued vertex
