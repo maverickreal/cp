@@ -50,10 +50,76 @@ bool primsMst(const vi(vi(ll))&g);
 
 ll kruskal(const vi(vi(pi))&g);
 
+bool dgHasEulerPath(const vi(vi(ll))&g); // for directed graph
+
+bool udgHasEulerPath(const vi(vi(ll))&g); // for undirected graph
+
+class Solution{
+typedef long long ll;
+typedef pair<ll, ll> pi;
+#define vi(x) vector<x>
+#define pb push_back
+const ll mod = 1e9 + 7;
+const char nl = '\n';
+public:
+    ll n, m;
+    vi(ll)freq, cost;
+    vi(vi(ll))dp;
+    void getFreq(const vi(int)&v){
+        vi(ll)ump(100001);
+        for(ll it:v){
+            ++ump[it];
+        }
+        for(auto it:ump){
+            if(it>0){
+                freq.pb(it);
+            }
+        }
+    }
+    void getCost(const vi(int)&q){
+        for(ll bm=0;bm<cost.size();++bm){
+            for(ll i=0;i<n;++i){
+                if((bm>>i)&1){
+                    cost[bm]+=q[i];
+                }
+            }
+        }
+    }
+    bool func(const vi(int)&q, ll in, ll bm){
+        if(__builtin_popcount(bm)==n){
+            return true;
+        }
+        if(in==m){
+            return false;
+        }
+        ll&ans=dp[bm][in];
+        if(ans==-1){
+            ans=0;
+            for(ll it=bm;it<cost.size() && !ans;++it){
+                //cout<<it<<' ';
+                if(bm!=(it&bm) || freq[in]<cost[bm^it]){
+                    continue;
+                }
+                freq[in]-=cost[bm^it];
+                ans|=func(q, in+1, it);
+                freq[in]+=cost[bm^it];
+            }
+        }
+        return ans;
+    }
+    bool canDistribute(vector<int>&v, vector<int>&q) {
+        getFreq(v);
+        m=freq.size(), n=q.size();
+        dp.assign(1<<n, vi(ll)(m, -1)), cost.assign(1<<n, 0);
+        getCost(q);
+        return func(q, 0, 0);
+    }
+};
+
 int main() {
     ios_base::sync_with_stdio(0);
     cin.tie(0); cout.tie(0);
-    cout << fixed << setprecision(10);
+    cout << fixed << setprecision(3);
     ll tc = 1;
     //cin >> tc;
     while(tc--){
@@ -230,9 +296,7 @@ public:
     vi(ll)par, size;
     dsu(ll n){
         par.assign(n, 0), size.assign(n, 1);
-        for(ll i=0;i<n;++i){
-            par[i]=i;
-        }
+        iota(begin(par), end(par), 0);
     }
     ll find(ll n){
         if(par[n]==n){
@@ -427,4 +491,38 @@ ll kruskal(const vi(vi(pi))&g){ // adjust for matrix form, or other requirements
         }
     }
     return ans;
+}
+
+bool dgHasEulerPath(const vi(vi(ll))&g) { // graph must be connected
+   ll n=g.size(), u = 0, v = 0;
+   vi(ll)in(n), out(n);
+   for(ll i=0;i<n;i++) {
+      for(ll j:g[i]) {
+        ++in[j];
+      }
+      out[i]=g[i].size();
+   }
+   if(in==out){ // eulerian circuit found
+    return 1;
+   }
+   for(ll i=0;i<n;i++) {
+      if(in[i]==out[i]){
+        continue;
+      }
+      if(in[i]==out[i]-1){
+        ++u;
+      }
+      else if(out[i]==in[i]-1){
+        ++v;
+      }
+   }
+   return (u==1 && v==1);
+}
+
+bool undgHasEulerPath(const vi(vi(ll))&g) { // graph must be connected
+   ll oddDeg=0;
+   for(ll i=0;i<g.size();i++) {
+      oddDeg+=g[i].size()&1;
+   }
+   return (oddDeg==0 || oddDeg==2 /* eulerian circuit found */);
 }
