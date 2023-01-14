@@ -18,15 +18,16 @@
 using namespace std;
 
 typedef long long ll;
-typedef pair<ll, ll> pi;
 #define vi(x) vector<x>
+typedef pair<ll, ll> pi;
 #define pb push_back
 const ll mod = 1e9 + 7;
 const char nl = '\n';
+const vi(vi(ll))dirs={{-1, 0}, {0, -1}, {1, 0}, {0, 1}};
 
-bitset<0> primes(0); // <x> size initialized with bits of (y) right to left
+vector<bool>primes; // <x> size initialized with bits of (y) right to left
 
-void setPrimes(); //  first adjust the bitset primes accordingly
+void setPrimes(ll n); //  first adjust the bitset primes accordingly
 
 bool isPrime(ll n);
 
@@ -54,65 +55,129 @@ bool dgHasEulerPath(const vi(vi(ll))&g); // for directed graph
 
 bool udgHasEulerPath(const vi(vi(ll))&g); // for undirected graph
 
-class Solution{
-typedef long long ll;
-typedef pair<ll, ll> pi;
-#define vi(x) vector<x>
-#define pb push_back
-const ll mod = 1e9 + 7;
-const char nl = '\n';
+class splayTree {
+    class node {
+    public:
+        int key;
+        node *left, *right, *parent;
+        node(int nd){
+            key=nd;
+        }
+    };
 public:
-    ll n, m;
-    vi(ll)freq, cost;
-    vi(vi(ll))dp;
-    void getFreq(const vi(int)&v){
-        vi(ll)ump(100001);
-        for(ll it:v){
-            ++ump[it];
+    node *root;
+    void leftRotate(node *x) {
+        node *y = x->right;
+        if (y) {
+          x->right = y->left;
+          if (y->left){
+            y->left->parent = x;
+          }
+          y->parent = x->parent;
         }
-        for(auto it:ump){
-            if(it>0){
-                freq.pb(it);
+        if (!x->parent){
+          root = y;
+        }
+        else if (x == x->parent->left){
+          x->parent->left = y;
+        }
+        else {
+          x->parent->right = y;
+        }
+        if (y){
+          y->left = x;
+        }
+        x->parent = y;
+    }
+    void rightRotate(node *x) {
+        node *y = x->left;
+        if (y) {
+          x->left = y->right;
+          if (y->right){
+            y->right->parent = x;
+          }
+          y->parent = x->parent;
+        }
+        if (!x->parent){
+          root = y;
+        }
+        else if (x == x->parent->left){
+          x->parent->left = y;
+        }
+        else {
+          x->parent->right = y;
+        }
+        if (y){
+          y->right = x;
+        }
+        x->parent = y;
+    }
+    void splay(node *x) {
+        while (x->parent){
+          if (!x->parent->parent) {
+            if (x->parent->left == x){ 
+              rightRotate(x->parent);
             }
+            else{
+              leftRotate(x->parent);
+            }
+          }
+          else if (x->parent->left == x && x->parent->parent->left == x->parent) {
+            rightRotate(x->parent->parent);
+            rightRotate(x->parent);  
+          } else if (x->parent->right == x && x->parent->parent->right == x->parent) {
+            leftRotate(x->parent->parent);
+            leftRotate(x->parent);
+          } 
+          else if (x->parent->left == x && x->parent->parent->right == x->parent) {
+            rightRotate(x->parent);
+            leftRotate(x->parent);
+          } 
+          else {
+            leftRotate(x->parent);
+            rightRotate(x->parent);
+          }
         }
     }
-    void getCost(const vi(int)&q){
-        for(ll bm=0;bm<cost.size();++bm){
-            for(ll i=0;i<n;++i){
-                if((bm>>i)&1){
-                    cost[bm]+=q[i];
-                }
-            }
+    node* find(int key) {
+        node *z = root;
+        while (z) {
+          if (z->key < key) {
+            z = z->right;
+          }
+          else if (key < z->key){
+            z = z->left;
+          }
+          else {
+            splay(z);
+            return z;
+          }
         }
+        return nullptr;
     }
-    bool func(const vi(int)&q, ll in, ll bm){
-        if(__builtin_popcount(bm)==n){
-            return true;
+    void insert(int key) {
+        node *z = root, *p = nullptr;
+        while (z) {
+          p = z;
+          if (z->key < key) {
+            z = z->right;
+          }
+          else {
+            z = z->left;
+          }
         }
-        if(in==m){
-            return false;
+        z = new node(key);
+        z->parent = p;    
+        if (!p) {
+          root = z;
         }
-        ll&ans=dp[bm][in];
-        if(ans==-1){
-            ans=0;
-            for(ll it=bm;it<cost.size() && !ans;++it){
-                //cout<<it<<' ';
-                if(bm!=(it&bm) || freq[in]<cost[bm^it]){
-                    continue;
-                }
-                freq[in]-=cost[bm^it];
-                ans|=func(q, in+1, it);
-                freq[in]+=cost[bm^it];
-            }
+        else if (p->key < z->key){
+          p->right = z;
         }
-        return ans;
-    }
-    bool canDistribute(vector<int>&v, vector<int>&q) {
-        getFreq(v);
-        m=freq.size(), n=q.size();
-        dp.assign(1<<n, vi(ll)(m, -1)), cost.assign(1<<n, 0);
-        getCost(q);
-        return func(q, 0, 0);
+        else {
+          p->left = z;
+        }
+        splay(z);
     }
 };
 
@@ -121,14 +186,14 @@ int main() {
     cin.tie(0); cout.tie(0);
     cout << fixed << setprecision(3);
     ll tc = 1;
-    //cin >> tc;
+    cin>>tc;
     while(tc--){
     }
     return 0;
 }
 
-void setPrimes() {
-    ll n = primes.size();
+void setPrimes(ll n) {
+    primes.assign(n, 1);
     primes[0] = primes[1] = 0;
     for (ll i = 2;i * i <= n;i++) {
         if (primes[i]) {
@@ -140,11 +205,16 @@ void setPrimes() {
 }
 
 bool isPrime(ll n) {
-    if (n<2) return false;
-    if (n == 2) return true;
-    if (!(n&1)) return false;
+    if (n == 2){
+        return true;
+    }
+    if (n<2 || !(n&1)){
+        return false;
+    }
     for (ll i = 3; i * i <= n; i += 2){
-        if (n % i == 0) return false;
+        if (n % i == 0){
+            return false;
+        }
     }
     return true;
 }
@@ -171,10 +241,12 @@ unordered_map<ll,ll> getPrimeFactors(ll n){
 }
 
 unordered_set<ll> getFactors(ll n) {
-    if (n < 0)
+    if (n < 0){
         return {};
-    if (n == 0)
+    }
+    if (n == 0){
         return { 0 };
+    }
     unordered_set<ll> res={1, n};
     for (ll i = 2;i * i <= n;i++) {
         if (n % i == 0) {
@@ -189,8 +261,9 @@ vi(vi(ll)) getChildren(vi(ll)& v) {
     vi(vi(ll)) res(n);
     for (ll i = 0;i < n;++i) {
         ll node = i + 1, par = v[i];
-        if (par == -1)continue;
-        res[par - 1].push_back(node);
+        if (par != -1){
+            res[par - 1].push_back(node);
+        }
     }
     return res;
 }
@@ -274,8 +347,7 @@ bool spfa(const vi(vi(pi))&g, vi(ll)&d, ll s) { // optimized bellman ford
         ll v = q.front();
         q.pop_front();
         vis[v] = false;
-        for (auto edge : g[v]) {
-            ll u = edge.first, w = edge.second;
+        for (const auto&[u, w] : g[v]) {
             if (d[v] + w < d[u]) {
                 d[u] = d[v] + w;
                 if (!vis[u]) {
@@ -340,8 +412,7 @@ public:
                 break;
             }
             vis[v] = true;
-            for (auto edge : g[v]) {
-                ll to = edge.first, w = edge.second;
+            for (const auto&[to, w] : g[v]) {
                 if (d[v] + w < d[to]) {
                     d[to] = d[v] + w;
                     p[to] = v;
@@ -356,13 +427,12 @@ public:
         priority_queue<pi, vector<pi>, greater<pi>> q;
         q.push({0, s});
         while (!q.empty()) {
-            ll v = q.top().second, dist = q.top().first;
+            const auto&[dist, v] = q.top();
             q.pop();
             if (dist != d[v]){
                 continue;
             }
-            for (auto edge : g[v]) {
-                ll to = edge.first, w = edge.second;
+            for (const auto&[to, w] : g[v]) {
                 if (d[v] + w < d[to]) {
                     d[to] = d[v] + w;
                     p[to] = v;
@@ -456,7 +526,7 @@ ll primsAcc(const vi(ll)&val, const vi(bool)&inc){ // find and return the min va
 bool primsMst(const vi(vi(ll))&g){ // find MST in a dense graph
     ll n=g.size();
     vi(ll)par(n, 0), val(n, LLONG_MAX);
-    vi(bool)inc(n, false);
+    vi(bool)inc(n);
     par[0] = -1, val[0] = 0;
     for(ll i = 0; i < n-1; ++i){
         ll u = primsAcc(val, inc);
@@ -515,7 +585,7 @@ bool dgHasEulerPath(const vi(vi(ll))&g) { // graph must be connected
       else if(out[i]==in[i]-1){
         ++v;
       }
-   }
+   } // perform a postorder on u to trace the path
    return (u==1 && v==1);
 }
 
@@ -523,6 +593,6 @@ bool undgHasEulerPath(const vi(vi(ll))&g) { // graph must be connected
    ll oddDeg=0;
    for(ll i=0;i<g.size();i++) {
       oddDeg+=g[i].size()&1;
-   }
+   } // perform a postorder over either of the odd degree nodes to trace the path
    return (oddDeg==0 || oddDeg==2 /* eulerian circuit found */);
 }
