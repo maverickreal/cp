@@ -80,11 +80,14 @@ ll modExp(ll x, ll y, ll m){
     return res;
 }
 
-ll stringHash(const string& s) { // alternatively construct and use std::hash<>
-    ll p = 31, hashVal = 0, pPow = 1;
-    for(char ch : s) {
-        hashVal = (hashVal + (ch - 'a' + 1) * pPow) % mod;
-        pPow = (pPow * p) % mod;
+class stringHash{
+public:
+    ll operator()(const string& s)const{ // alternatively construct and use std::hash<>
+        ll p = 31, hashVal = 0, pPow = 1;
+        for(const char&ch : s) {
+            hashVal = (hashVal + (ch - 'a' + 1) * pPow) % mod;
+            pPow = (pPow * p) % mod;
+        }
+        return hashVal;
     }
-    return hashVal;
-}
+};
