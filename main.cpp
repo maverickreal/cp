@@ -23,14 +23,13 @@ typedef pair<ll, ll> pi;
 #define pb push_back
 const ll mod = 1e9 + 7;
 const char nl = '\n';
-const vi(vi(ll))dirs={{-1, 0}, {0, -1}, {1, 0}, {0, 1}};
 
 int main() {
     ios_base::sync_with_stdio(0);
     cin.tie(0); cout.tie(0);
     cout << fixed << setprecision(3);
     ll tc = 1;
-    cin>>tc;
+    //cin>>tc;
     while(tc--){
     }
     return 0;
