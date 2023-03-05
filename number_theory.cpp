@@ -1,6 +1,6 @@
-vector<bool>primes; // <x> size initialized with bits of (y) right to left
+vector<bool>primes;
 
-void setPrimes(ll n) { // first adjust the bitset primes accordingly
+void setPrimes(ll n) { // first adjust "primes" accordingly
     primes.assign(n, 1);
     primes[0] = primes[1] = 0;
     for (ll i = 2;i * i <= n;i++) {
@@ -27,16 +27,9 @@ bool isPrime(ll n) {
     return true;
 }
 
-unordered_map<ll,ll> getPrimeFactors(ll n){ // for queries, use setPrimes and isPrime efficiently
+unordered_map<ll,ll> getPrimeFactors(ll n){
     unordered_map<ll,ll>ump;
-    if(n<2){
-        return ump;
-    }
-    while (!(n&1)){
-        ++ump[2];
-        n>>=1;
-    }
-    for (ll i = 3; i*i<=n; i+=2){
+    for (ll i = 2; i*i<=n; ++i){
         while (n % i == 0){
             ++ump[i];
             n/=i;
