@@ -24,13 +24,16 @@ typedef pair<ll, ll> pi;
 const ll mod = 1e9 + 7;
 const char nl = '\n';
 
-int main() {
+int main()
+{
     ios_base::sync_with_stdio(0);
-    cin.tie(0); cout.tie(0);
+    cin.tie(0);
+    cout.tie(0);
     cout << fixed << setprecision(3);
     ll tc = 1;
-    //cin>>tc;
-    while(tc--){
+    // cin>>tc;
+    while (tc--)
+    {
     }
     return 0;
 }

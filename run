@@ -1,4 +1,4 @@
 rm main
 clear
-g++ -std=c++17 main.cpp -o main
+g++ -std=gnu++17 main.cpp -o main
 ./main
