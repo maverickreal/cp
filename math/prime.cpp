@@ -35,7 +35,7 @@ unordered_map<ll,ll> getPrimeFactors(ll n){
             n/=i;
         }
     }
-    if (n > 2){
+    if (n > 1){
         ++ump[n];
     }
     return ump;
