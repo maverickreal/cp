@@ -20,9 +20,10 @@ using namespace std;
 typedef long long ll;
 #define vi(x) vector<x>
 typedef pair<ll, ll> pi;
-#define eb emplace_back
+#define pb push_back
 const ll mod = 1e9 + 7;
 const char nl = '\n';
+const vi(pi)dirs = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}, {1, 1}, {-1, -1}, {1, -1}, {-1, 1}};
 
 int main(){
     ios_base::sync_with_stdio(0);
@@ -31,6 +32,7 @@ int main(){
     cout << fixed << setprecision(3);
     ll tc = 1;
     // cin>>tc;
-    while (tc--){}
+    while (tc--){
+    }
     return 0;
 }
