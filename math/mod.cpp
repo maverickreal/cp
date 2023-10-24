@@ -14,11 +14,14 @@ ll modBinExp(ll x, ll y, ll m){
     return res;
 }
 
-vi(ll) extendedEucledianGcd(ll a, ll b) {
-   if (!b){
-       return {a, 1, 0};
-   }
-   vi(ll) gxy = extendedEucledianGcd(b, a % b);
-   ll x = gxy[2], y = gxy[1] - gxy[2] * (a / b);
-   return {gcd, x, y};
+vi(ll) extendedEucledian(ll a, ll b) {
+    vi(ll) x = {1, 0, a}, y = {0, 1, b};
+	while (y[2] > 0) {
+		ll k = x[2] / y[2];
+		for (ll i = 0; i < 3; ++i){
+            x[i] -= k * y[i];
+        }
+		swap(x, y);
+	}
+	return x;
 }
