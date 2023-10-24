@@ -15,13 +15,10 @@ ll modBinExp(ll x, ll y, ll m){
 }
 
 vi(ll) extendedEucledian(ll a, ll b) {
-    vi(ll) x = {1, 0, a}, y = {0, 1, b};
-    while (y[2] > 0) {
-        ll k = x[2] / y[2];
-        for (ll i = 0; i < 3; ++i){
-             x[i] -= k * y[i];
-        }
-        swap(x, y);
+    if(!b){
+        return {1, 0, a};
     }
-    return x;
+    vi(ll)xyg = extendedEucledian(b, a%b);
+    ll x = xyg[1], y = xyg[0]-xyg[1]*(a/b);
+    return {x, y, xyg[2]};
 }
